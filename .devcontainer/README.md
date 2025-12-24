@@ -13,11 +13,11 @@ Two Python versions are available:
 
 To switch between Python versions:
 
-1. Open the Command Palette (`Ctrl/Cmd+Shift+P`)
-2. Run `Dev Containers: Rebuild Container`
-3. Before rebuilding, edit `.devcontainer/devcontainer.json`
-4. Change the `"service"` field from `"py312"` to `"py311"` (or vice versa)
-5. Save and rebuild
+1. Edit `.devcontainer/devcontainer.json`
+2. Change the `"service"` field from `"py312"` to `"py311"` (or vice versa)
+3. Save the file
+4. Open the Command Palette (`Ctrl/Cmd+Shift+P`)
+5. Run `Dev Containers: Rebuild Container`
 
 ## Environment Variables
 

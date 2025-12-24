@@ -18,10 +18,11 @@
         "GitHub.copilot",
         "GitHub.copilot-chat",
         "ms-windows-ai-studio.windows-ai-studio",
-        "GitHub.vscode-pull-request-github"
+        "GitHub.vscode-pull-request-github",
+        "charliermarsh.ruff"
       ],
       "settings": {
-        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
         "python.testing.pytestEnabled": true,
         "python.testing.unittestEnabled": false,
         "python.linting.enabled": true,
