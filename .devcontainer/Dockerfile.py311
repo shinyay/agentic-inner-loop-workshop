@@ -1,0 +1,19 @@
+# Dev Container image for Python 3.11
+FROM python:3.11-slim
+
+# Install git and other common tools
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Install the project in editable mode with dev dependencies
+# This will be done via postCreateCommand in devcontainer.json
+# to ensure the latest code is used when the container is created

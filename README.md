@@ -59,11 +59,30 @@ The CLI ships with:
   - AI Toolkit for VS Code
   - GitHub Pull Requests and Issues
   - Python (and Pylance)
-- Python 3.11+ installed locally
+- Python 3.11+ installed locally **OR** Docker for Dev Container support
 
 ---
 
 ## Quickstart
+
+### Option A: Dev Container (Recommended)
+
+Open this repository in VS Code and:
+
+1. Install the **Dev Containers** extension if not already installed
+2. When prompted, click **Reopen in Container**
+   - Or use Command Palette: `Dev Containers: Reopen in Container`
+3. VS Code will build the container and install dependencies automatically
+4. The default container uses **Python 3.12**
+
+To switch to Python 3.11:
+- Edit `.devcontainer/devcontainer.json`
+- Change `"service": "py312"` to `"service": "py311"`
+- Rebuild the container: `Dev Containers: Rebuild Container`
+
+See `.devcontainer/README.md` for more details.
+
+### Option B: Local Python Environment
 
 Create and activate a virtual environment, then install:
 
