@@ -70,4 +70,4 @@ mypy_path = ["src"]
 packages = ["src/triage_assistant"]
 
 [tool.hatch.build.targets.sdist]
-include = ["src/triage_assistant", "tests", "docs", "datasets", "scripts", ".github", ".vscode", "README.md", "LICENSE"]
+include = ["src/triage_assistant", "tests", "docs", "datasets", "scripts", ".github", ".vscode", "README.md", "LICENSE", ".env.example"]

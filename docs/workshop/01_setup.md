@@ -36,6 +36,22 @@ Install:
 
 If Copilot is disabled for the workspace, enable it.
 
+## 3.5 Connect AI Toolkit to a model provider (optional)
+
+AI Toolkit can run prompts/agents against hosted models.
+For this workshop, you can choose either:
+
+- **GitHub Models** (recommended for most participants)
+- **Microsoft Foundry** (recommended for enterprise / Azure environments)
+
+In VS Code:
+
+1. Open **AI Toolkit**.
+2. Open the **Model Catalog**.
+3. When prompted, authorize / sign in for the provider you want to use.
+
+If you skip this step, you can still complete the workshop using the offline `dummy` adapter.
+
 ## 4. Enable chat checkpoints
 
 This repo recommends enabling chat checkpoints so you can “rewind” edits after big agent changes.

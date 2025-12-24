@@ -110,4 +110,7 @@ If a change might be risky:
 ## Security
 
 - Never commit secrets.
-- The OpenAI-compatible adapter reads configuration from environment variables.
+- Model adapters read credentials from environment variables.
+  - GitHub Models: PAT / token (`TRIAGE_GITHUB_TOKEN`)
+  - Microsoft Foundry: API key (`TRIAGE_FOUNDRY_API_KEY` or `AZURE_INFERENCE_CREDENTIAL`)
+  - OpenAI-compatible: API key (`TRIAGE_OPENAI_API_KEY`)

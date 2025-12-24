@@ -33,6 +33,18 @@ ruff format --check .
 Open the AI Toolkit view in VS Code.
 You should see features like Prompt Builder / Agent Builder, Bulk Run, Evaluation, etc.
 
+### Step 1.5 — Select a hosted model (GitHub Models or Foundry)
+
+In AI Toolkit's **Model Catalog**, select a model to run your prompt/agent.
+
+Recommended options for the workshop:
+
+- **GitHub Models** — quickest start if you have a GitHub account + token
+- **Microsoft Foundry** — best if you already have an Azure / Foundry environment
+
+If you cannot access a hosted provider, you can still run the deterministic lane and
+continue the workshop using the rule-based baseline.
+
 ### Step 2 — Create a baseline prompt
 
 Create a prompt that takes two variables:

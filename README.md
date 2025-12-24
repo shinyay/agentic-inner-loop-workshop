@@ -30,7 +30,9 @@ A small Python CLI that takes a GitHub Issue `title` and `body` and produces a *
 
 The CLI ships with:
 - a **rule-based adapter** (offline baseline, deterministic)
-- an optional **OpenAI-compatible adapter** (for real model calls, when configured)
+- a **GitHub Models adapter** (hosted models via your GitHub token)
+- a **Microsoft Foundry adapter** (hosted models via Azure AI inference endpoints)
+- an optional **OpenAI-compatible adapter** (fallback for existing OpenAI-style endpoints)
 - tests and CI so you can keep “deterministic correctness” while iterating on “probabilistic quality”.
 
 ---
@@ -39,6 +41,7 @@ The CLI ships with:
 
 - `docs/workshop/` — step-by-step workshop modules
 - `docs/templates/` — templates for spec/plan/eval reports
+- `docs/providers.md` — how to configure GitHub Models / Foundry for hosted-model runs
 - `.github/prompts/` — Copilot prompt files invoked via `/` in the Chat view
 - `.github/ISSUE_TEMPLATE/` — standardized issue templates for tasks, bugs, and evaluation regressions
 - `src/triage_assistant/` — the CLI + schema + adapters
@@ -83,6 +86,55 @@ Run tests:
 
 ```bash
 pytest -q
+```
+
+---
+
+## Using a hosted model
+
+By default, `triage-assistant` uses the deterministic `dummy` adapter so the workshop can run
+without any external credentials.
+
+If you want to call a hosted model from the CLI, configure a provider and then run with
+`--adapter ...` (or set `TRIAGE_PROVIDER`).
+
+For full details (including environment variables), see:
+
+- `docs/providers.md`
+
+### Option A: GitHub Models
+
+1) Create a token that can access GitHub Models.
+
+2) Set environment variables:
+
+```bash
+export TRIAGE_GITHUB_TOKEN="..."
+export TRIAGE_GITHUB_MODEL="openai/gpt-4.1"  # optional; default shown
+```
+
+3) Run:
+
+```bash
+triage-assistant triage --adapter github --title "Crash on startup" --body "Steps to reproduce: ..." --pretty
+```
+
+### Option B: Microsoft Foundry
+
+1) Deploy a model in Microsoft Foundry and copy the Azure AI inference endpoint and key.
+
+2) Set environment variables:
+
+```bash
+export TRIAGE_FOUNDRY_ENDPOINT="https://<resource-name>.services.ai.azure.com/models"
+export TRIAGE_FOUNDRY_API_KEY="..."  # or AZURE_INFERENCE_CREDENTIAL
+export TRIAGE_FOUNDRY_MODEL="<deployment-name>"
+```
+
+3) Run:
+
+```bash
+triage-assistant triage --adapter foundry --title "Crash on startup" --body "Steps to reproduce: ..." --pretty
 ```
 
 ---

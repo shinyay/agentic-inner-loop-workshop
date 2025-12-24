@@ -43,8 +43,8 @@ def test_docs_issue_is_docs_p2_and_can_be_good_first_issue() -> None:
 def test_question_issue_is_question_p2_and_can_need_info() -> None:
     adapter = DummyAdapter()
     out = adapter.triage(
-        title="How do I configure the OpenAI adapter?",
-        body="How do I set the environment variables?",
+        title="How do I configure the GitHub Models adapter?",
+        body="How do I set the environment variables and token?",
     )
     assert out.type == IssueType.question
     assert out.priority == Priority.p2

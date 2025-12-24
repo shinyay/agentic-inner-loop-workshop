@@ -31,3 +31,4 @@ reports/eval/*.json
 # Secrets
 .env
 .env.*
+!.env.example

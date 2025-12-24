@@ -45,7 +45,9 @@ Examples:
 - `triage-assistant triage --title ... --body ...` prints valid JSON on stdout.
 - JSON must validate against `TriageOutput` schema.
 - A deterministic baseline (rule-based adapter) must exist.
-- Optional: an OpenAI-compatible adapter can be enabled via env vars.
+- Optional: hosted-model adapters can be enabled via env vars.
+  - GitHub Models (recommended for the workshop)
+  - Microsoft Foundry (Azure AI inference endpoints)
 
 ## 6. Output contract
 

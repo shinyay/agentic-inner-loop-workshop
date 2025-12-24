@@ -3,7 +3,7 @@ ISSUE-001,Crash on startup when opening the app,The application crashes on start
 ISSUE-002,Data loss when saving configuration,"After saving, the config file becomes empty.\nThis looks like data loss.\nVersion: 1.9.1\nSteps to reproduce:\n1. Edit config\n2. Save",bug,p0,"[""bug"", ""p0""]"
 ISSUE-003,Add support for exporting reports to PDF,It would be great to export the generated report as a PDF for sharing with stakeholders.,feature,p2,"[""feature"", ""p2"", ""enhancement""]"
 ISSUE-004,README: installation command is outdated,"The README mentions `pip install .` but the recommended method should be `pip install -e "".[dev]""`.",docs,p2,"[""docs"", ""p2""]"
-ISSUE-005,How do I enable the OpenAI-compatible adapter?,How do I configure the environment variables for the OpenAI adapter?,question,p2,"[""question"", ""p2"", ""needs-info""]"
+ISSUE-005,How do I enable the GitHub Models adapter?,How do I configure the environment variables and token for the GitHub Models adapter?,question,p2,"[""question"", ""p2"", ""needs-info""]"
 ISSUE-006,Bug: CLI prints extra logs before JSON,"When running `triage-assistant triage`, I see debug logs before the JSON output.\nThis breaks piping into jq.",bug,p1,"[""bug"", ""p1""]"
 ISSUE-007,Improve error message when body file is missing,"If `--body-file` points to a missing file, show a clearer message and non-zero exit code.",feature,p2,"[""feature"", ""p2"", ""enhancement""]"
 ISSUE-008,Docs: fix typo in workshop module 01_setup,There is a typo: 'extenstion' should be 'extension'.,docs,p2,"[""docs"", ""p2"", ""good-first-issue""]"

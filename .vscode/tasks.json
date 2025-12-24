@@ -4,13 +4,13 @@
     {
       "label": "Install (editable + dev)",
       "type": "shell",
-      "command": "python -m pip install -e \".[dev]\"",
+      "command": "python3 -m pip install -e \".[dev]\"",
       "problemMatcher": []
     },
     {
       "label": "Test (pytest)",
       "type": "shell",
-      "command": "pytest -q",
+      "command": "python3 -m pytest -q",
       "problemMatcher": [],
       "group": {
         "kind": "test",
@@ -20,13 +20,13 @@
     {
       "label": "Lint (ruff)",
       "type": "shell",
-      "command": "ruff check .",
+      "command": "python3 -m ruff check .",
       "problemMatcher": []
     },
     {
       "label": "Format check (ruff)",
       "type": "shell",
-      "command": "ruff format --check .",
+      "command": "python3 -m ruff format --check .",
       "problemMatcher": []
     },
     {

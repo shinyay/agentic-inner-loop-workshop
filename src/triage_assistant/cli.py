@@ -7,8 +7,11 @@ from typing import Annotated
 import typer
 from rich.console import Console
 
+from .adapters.chat_completions import ChatCompletionsError
 from .adapters.dummy import DummyAdapter
-from .adapters.openai_compatible import OpenAICompatibleAdapter, OpenAICompatibleError
+from .adapters.foundry import FoundryModelInferenceAdapter
+from .adapters.github_models import GitHubModelsAdapter
+from .adapters.openai_compatible import OpenAICompatibleAdapter
 from .schema import TriageOutput
 from .triage import get_default_adapter
 
@@ -26,18 +29,51 @@ def _read_body(body: str | None, body_file: Path | None) -> str:
 
 
 def _resolve_adapter(adapter_name: str | None):
+    """Resolve an adapter name into an adapter instance.
+
+    Supported names:
+    - auto: choose based on environment (see triage.get_default_adapter)
+    - dummy: offline deterministic baseline
+    - github: GitHub Models (models.github.ai)
+    - foundry: Microsoft Foundry (Azure AI inference endpoint)
+    - openai: OpenAI-compatible chat completions (fallback)
+    """
+
     if adapter_name is None or adapter_name == "auto":
         return get_default_adapter()
-    if adapter_name == "dummy":
+
+    normalized = adapter_name.strip().lower().replace("_", "-")
+
+    if normalized == "dummy":
         return DummyAdapter()
-    if adapter_name == "openai":
+
+    if normalized in {"github", "github-models"}:
+        try:
+            return GitHubModelsAdapter.from_env()
+        except KeyError as e:
+            missing = str(e).strip("'")
+            raise typer.BadParameter(
+                f"Missing environment variable for GitHub Models adapter: {missing}"
+            ) from e
+
+    if normalized in {"foundry", "ai-foundry", "azure-foundry"}:
+        try:
+            return FoundryModelInferenceAdapter.from_env()
+        except KeyError as e:
+            missing = str(e).strip("'")
+            raise typer.BadParameter(
+                f"Missing environment variable for Foundry adapter: {missing}"
+            ) from e
+
+    if normalized in {"openai", "openai-compatible"}:
         try:
             return OpenAICompatibleAdapter.from_env()
         except KeyError as e:
             missing = str(e).strip("'")
             raise typer.BadParameter(
-                f"Missing environment variable for OpenAI adapter: {missing}"
+                f"Missing environment variable for OpenAI-compatible adapter: {missing}"
             ) from e
+
     raise typer.BadParameter(f"Unknown adapter: {adapter_name}")
 
 
@@ -51,7 +87,10 @@ def triage(
     adapter: Annotated[
         str,
         typer.Option(
-            help="Which adapter to use: auto (default), dummy (offline baseline), openai (OpenAI-compatible)."
+            help=(
+                "Which adapter to use: auto (default), dummy (offline baseline), "
+                "github (GitHub Models), foundry (Microsoft Foundry), openai (OpenAI-compatible)."
+            )
         ),
     ] = "auto",
     pretty: Annotated[bool, typer.Option(help="Pretty-print JSON output.")] = False,
@@ -62,8 +101,8 @@ def triage(
 
     try:
         result = triage_adapter.triage(title=title, body=body_text)
-    except OpenAICompatibleError as e:
-        console.print(f"[red]OpenAI adapter error:[/red] {e}")
+    except ChatCompletionsError as e:
+        console.print(f"[red]Model adapter error:[/red] {e}")
         raise typer.Exit(code=2) from e
     except Exception as e:
         console.print(f"[red]Unexpected error:[/red] {e}")
@@ -89,11 +128,18 @@ def eval(
     ),
     adapter: Annotated[
         str,
-        typer.Option(help="Adapter to use for evaluation: auto, dummy, openai."),
+        typer.Option(
+            help=(
+                "Adapter to use for evaluation: dummy (default), auto, github, foundry, openai. "
+                "For remote adapters, configure environment variables first."
+            )
+        ),
     ] = "dummy",
     report: Annotated[
         Path | None,
-        typer.Option(help="Write a Markdown report to this path. If omitted, print summary only."),
+        typer.Option(
+            help="Write a Markdown report to this path. If omitted, print summary only."
+        ),
     ] = None,
 ) -> None:
     """Run a simple local evaluation against the dataset.
@@ -101,6 +147,9 @@ def eval(
     This is NOT meant to replace AI Toolkit evaluation. It exists so you can:
     - sanity-check changes locally
     - keep a deterministic baseline
+
+    If you configure a hosted adapter (GitHub Models / Foundry), you can also
+    run this command to smoke-test end-to-end behavior.
     """
     if not dataset.exists():
         raise typer.BadParameter(f"Dataset not found: {dataset}")

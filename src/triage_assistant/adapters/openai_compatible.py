@@ -2,56 +2,36 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from dataclasses import dataclass
 from typing import Any
 
 import httpx
 
 from ..schema import TriageOutput
+from .chat_completions import ChatCompletionsError, extract_json_object, get_chat_completion_content
 
 
-class OpenAICompatibleError(RuntimeError):
+class OpenAICompatibleError(ChatCompletionsError):
     """Raised when the OpenAI-compatible adapter cannot produce a valid result."""
-
-
-def _extract_json_object(text: str) -> str:
-    """Extract the first JSON object from a string.
-
-    Many model providers wrap JSON in code fences or add commentary.
-    This function tries to recover the first {...} block.
-
-    Raises:
-        OpenAICompatibleError: if extraction fails.
-    """
-    # Remove code fences if present.
-    fenced = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", text, flags=re.DOTALL | re.IGNORECASE)
-    if fenced:
-        return fenced.group(1)
-
-    # Fallback: pick the first '{' ... last '}'.
-    start = text.find("{")
-    end = text.rfind("}")
-    if start == -1 or end == -1 or end <= start:
-        raise OpenAICompatibleError("Model response did not contain a JSON object.")
-    return text[start : end + 1]
 
 
 @dataclass(frozen=True)
 class OpenAICompatibleAdapter:
     """Adapter that calls an OpenAI-compatible Chat Completions API.
 
-    This adapter is *optional* for the workshop. The repository defaults to the
-    deterministic DummyAdapter unless the required environment variables are set.
+    This repository's workshop materials focus on GitHub Models and Microsoft Foundry.
+    The OpenAI-compatible adapter remains available as a fallback for environments that
+    already standardize on an OpenAI-style endpoint.
 
-    Environment variables (supported by `from_env()`):
-    - TRIAGE_OPENAI_BASE_URL   (example: https://api.openai.com)
+    Environment variables (supported by ``from_env()``):
+
+    - TRIAGE_OPENAI_BASE_URL (example: https://api.openai.com)
     - TRIAGE_OPENAI_API_KEY
-    - TRIAGE_OPENAI_MODEL      (example: gpt-4o-mini)
+    - TRIAGE_OPENAI_MODEL (example: gpt-4o-mini)
 
     Notes:
     - Many providers are "OpenAI-compatible" but differ slightly.
-    - This adapter aims to be defensive and validate output strictly.
+    - This adapter validates output strictly against ``TriageOutput``.
     """
 
     base_url: str
@@ -62,7 +42,7 @@ class OpenAICompatibleAdapter:
     json_mode: bool = True
 
     @staticmethod
-    def from_env() -> OpenAICompatibleAdapter:
+    def from_env() -> "OpenAICompatibleAdapter":
         base_url = os.environ["TRIAGE_OPENAI_BASE_URL"].strip()
         api_key = os.environ["TRIAGE_OPENAI_API_KEY"].strip()
         model = os.environ["TRIAGE_OPENAI_MODEL"].strip()
@@ -100,7 +80,6 @@ class OpenAICompatibleAdapter:
             payload["response_format"] = {"type": "json_object"}
 
         headers = {"Authorization": f"Bearer {self.api_key}"}
-
         url = self.base_url.rstrip("/") + "/v1/chat/completions"
 
         try:
@@ -113,23 +92,9 @@ class OpenAICompatibleAdapter:
         except json.JSONDecodeError as e:
             raise OpenAICompatibleError(f"Provider returned non-JSON response: {e}") from e
 
-        content = _get_chat_completion_content(data)
-        json_text = _extract_json_object(content)
+        content = get_chat_completion_content(data)
+        json_text = extract_json_object(content)
         try:
             return TriageOutput.model_validate_json(json_text)
         except Exception as e:  # pragma: no cover
             raise OpenAICompatibleError(f"Model output failed schema validation: {e}") from e
-
-
-def _get_chat_completion_content(data: dict[str, Any]) -> str:
-    """Extract the assistant message content from a chat completions response."""
-    try:
-        choices = data["choices"]
-        message = choices[0]["message"]
-        content = message["content"]
-    except Exception as e:  # pragma: no cover
-        raise OpenAICompatibleError(f"Unexpected response structure: {e}") from e
-
-    if not isinstance(content, str) or not content.strip():
-        raise OpenAICompatibleError("Provider returned empty content.")
-    return content
