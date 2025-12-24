@@ -1,28 +1,120 @@
-# Title
+# Agentic Inner Loop Workshop
 
-## Description
+This repository is a **hands-on workshop** that teaches how to run an **agentic inner loop** inside Visual Studio Code by connecting:
 
-## Demo
+- **GitHub Copilot Chat** (Ask / Edit / Agent / Plan)
+- **AI Toolkit for VS Code** (prompt/agent iteration, bulk run, evaluation, version comparison)
+- **GitHub Issues** (task decomposition, progress tracking, feedback loop closure)
 
-## Features
+You will repeatedly run a deep loop:
 
-- feature:1
-- feature:2
+**Spec → Plan → Tasks → Implement → Run/Evaluate → Feedback → (back to Spec/Plan)**
 
-## Requirement
+The deliverable is a tiny but realistic “Issue Triage Assistant” CLI and a set of reusable workflows
+(prompt files, templates, issue templates) that make the loop repeatable.
 
-## Usage
+---
 
-## Installation
+## What you will build
 
-## References
+A small Python CLI that takes a GitHub Issue `title` and `body` and produces a **schema-validated JSON** response:
 
-## Licence
+```json
+{
+  "type": "bug | feature | docs | question",
+  "priority": "p0 | p1 | p2",
+  "labels": ["..."],
+  "rationale": "short explanation"
+}
+```
 
-Released under the [MIT license](https://gist.githubusercontent.com/shinyay/56e54ee4c0e22db8211e05e70a63247e/raw/f3ac65a05ed8c8ea70b653875ccac0c6dbc10ba1/LICENSE)
+The CLI ships with:
+- a **rule-based adapter** (offline baseline, deterministic)
+- an optional **OpenAI-compatible adapter** (for real model calls, when configured)
+- tests and CI so you can keep “deterministic correctness” while iterating on “probabilistic quality”.
 
-## Author
+---
 
-- github: <https://github.com/shinyay>
-- twitter: <https://twitter.com/yanashin18618>
-- mastodon: <https://mastodon.social/@yanashin>
+## Repository tour
+
+- `docs/workshop/` — step-by-step workshop modules
+- `docs/templates/` — templates for spec/plan/eval reports
+- `.github/prompts/` — Copilot prompt files invoked via `/` in the Chat view
+- `.github/ISSUE_TEMPLATE/` — standardized issue templates for tasks, bugs, and evaluation regressions
+- `src/triage_assistant/` — the CLI + schema + adapters
+- `datasets/` — a small evaluation dataset for AI Toolkit and local evaluation
+- `reports/eval/` — where you save evaluation notes so feedback becomes actionable work
+
+---
+
+## Prerequisites
+
+- VS Code (latest stable recommended)
+- Extensions:
+  - GitHub Copilot
+  - GitHub Copilot Chat
+  - AI Toolkit for VS Code
+  - GitHub Pull Requests and Issues
+  - Python (and Pylance)
+- Python 3.11+ installed locally
+
+---
+
+## Quickstart
+
+Create and activate a virtual environment, then install:
+
+```bash
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+source .venv/bin/activate
+
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+```
+
+Run the CLI:
+
+```bash
+triage-assistant triage --title "Crash on startup" --body "Steps to reproduce: ..."
+```
+
+Run tests:
+
+```bash
+pytest -q
+```
+
+---
+
+## Workshop flow
+
+Start here:
+
+- `docs/workshop/00_overview.md`
+
+Then follow modules in order:
+
+1. Setup (`01_setup.md`)
+2. Spec (`02_spec.md`)
+3. Plan (`03_plan.md`)
+4. Tasks (`04_issues.md`)
+5. Implement (`05_implement.md`)
+6. Run & Evaluate (`06_run_and_evaluate.md`)
+7. Feedback loop closure (`07_feedback.md`)
+8. Retro and mental model (`08_retro.md`)
+
+---
+
+## Conventions
+
+- Keep changes **small** and **issue-scoped**.
+- Every task has a **Definition of Done** (DoD) and a **validation command**.
+- Deterministic gates: tests, schema validation, linting.
+- Probabilistic gates: AI Toolkit evaluation runs and version comparisons.
+
+---
+
+## License
+
+MIT. See `LICENSE`.

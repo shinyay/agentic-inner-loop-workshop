@@ -1,0 +1,14 @@
+{
+  "chat.checkpoints.enabled": true,
+  "chat.checkpoints.showFileChanges": true,
+  "chat.promptFilesRecommendations": true,
+  "editor.formatOnSave": true,
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.analysis.typeCheckingMode": "basic"
+}
