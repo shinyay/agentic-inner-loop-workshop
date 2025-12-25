@@ -60,6 +60,10 @@ To use hosted model providers (GitHub Models, Microsoft Foundry):
 
 ### 6. Verify prompt files are discoverable
 
+**Goal:** Confirm that Copilot Chat can discover the workshop's custom prompts.
+
+**Steps:**
+
 1. Open Copilot Chat (Chat view).
 2. Type `/` in the input box.
 3. You should see prompts such as:
@@ -71,13 +75,17 @@ If you do not see them, confirm they exist under `.github/prompts/` and that the
 
 ### 7. Run the baseline tests
 
+**Goal:** Verify that the development environment is correctly configured by running the test suite.
+
+**Steps:**
+
 Open a terminal in VS Code:
 
 ```bash
 pytest -q
 ```
 
-You should see passing tests.
+**Expected output:** You should see passing tests.
 
 ### Outputs for this option
 
@@ -170,11 +178,15 @@ pip install -e ".[dev]"
 
 ### 8. Run the baseline tests
 
+**Goal:** Verify that the development environment is correctly configured by running the test suite.
+
+**Steps:**
+
 ```bash
 pytest -q
 ```
 
-You should see passing tests.
+**Expected output:** You should see passing tests.
 
 ### Outputs for this option
 

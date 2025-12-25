@@ -14,6 +14,4 @@ WORKDIR /workspace
 # Upgrade pip
 RUN pip install --upgrade pip
 
-# Install the project in editable mode with dev dependencies
-# This will be done via postCreateCommand in devcontainer.json
-# to ensure the latest code is used when the container is created
+# Dependencies are installed via postCreateCommand in devcontainer.json

@@ -11,7 +11,9 @@ Two Python versions are available:
 
 ## Switching Python Versions
 
-To switch between Python versions:
+**Goal:** Change the container to use a different Python version (3.11 or 3.12).
+
+**Steps:**
 
 1. Edit `.devcontainer/devcontainer.json`
 2. Change the `"service"` field from `"py312"` to `"py311"` (or vice versa)
@@ -19,7 +21,13 @@ To switch between Python versions:
 4. Open the Command Palette (`Ctrl/Cmd+Shift+P`)
 5. Run `Dev Containers: Rebuild Container`
 
+**Expected output:** The container rebuilds with the selected Python version.
+
 ## Environment Variables
+
+**Goal:** Configure environment variables for hosted model providers (GitHub Models, Microsoft Foundry).
+
+**Steps:**
 
 The `.env` file is optional. If you need to configure hosted model providers:
 
@@ -28,6 +36,8 @@ The `.env` file is optional. If you need to configure hosted model providers:
 3. Rebuild the container
 
 Docker Compose automatically loads `.env` if it exists in the parent directory.
+
+**Expected output:** Environment variables are available in the container for model provider configuration.
 
 ## Dependencies
 
