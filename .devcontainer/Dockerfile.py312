@@ -1,0 +1,17 @@
+# Dev Container image for Python 3.12
+FROM python:3.12-slim
+
+# Install git and other common tools
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /workspace
+
+# Upgrade pip
+RUN pip install --upgrade pip
+
+# Dependencies are installed via postCreateCommand in devcontainer.json

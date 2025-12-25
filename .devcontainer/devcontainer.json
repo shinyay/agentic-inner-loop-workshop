@@ -1,0 +1,45 @@
+{
+  "name": "Agentic Inner Loop Workshop",
+  "dockerComposeFile": "compose.yaml",
+  "service": "py312",
+  "workspaceFolder": "/workspace",
+
+  // Install dependencies after the container is created
+  // Uses direct pip install to system Python (not a workspace .venv)
+  // Container isolation makes venv unnecessary; using system Python simplifies the setup
+  "postCreateCommand": "pip install -e '.[dev]'",
+
+  // VS Code extensions to install in the container
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter",
+        "GitHub.copilot",
+        "GitHub.copilot-chat",
+        "ms-windows-ai-studio.windows-ai-studio",
+        "GitHub.vscode-pull-request-github",
+        "charliermarsh.ruff"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python3",
+        "python.testing.pytestEnabled": true,
+        "python.testing.unittestEnabled": false,
+        "ruff.lint.enabled": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit"
+          }
+        },
+        "chat.checkpoints.enabled": true
+      }
+    }
+  },
+
+  "forwardPorts": [],
+
+  "remoteUser": "root"
+}
