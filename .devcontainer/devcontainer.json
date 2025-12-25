@@ -6,6 +6,7 @@
 
   // Install dependencies after the container is created
   // Uses direct pip install to system Python (not a workspace .venv)
+  // Container isolation makes venv unnecessary; using system Python simplifies the setup
   "postCreateCommand": "pip install -e '.[dev]'",
 
   // VS Code extensions to install in the container
@@ -38,9 +39,7 @@
     }
   },
 
-  // Forward ports for any web services if needed
   "forwardPorts": [],
 
-  // Use 'forwardPorts' to make a list of ports inside the container available locally.
   "remoteUser": "root"
 }

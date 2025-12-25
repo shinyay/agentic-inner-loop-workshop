@@ -24,39 +24,63 @@ Choose the option that best fits your environment and preferences.
 
 ### 1. Open the repository
 
+**Goal:** Get the workshop repository ready in VS Code.
+
+**Steps:**
+
 1. Clone the repository.
 2. Open it in VS Code.
 3. If prompted, mark the workspace as **Trusted**.
 
+**Expected output:** The repository is open in VS Code and trusted.
+
 ### 2. Install Dev Containers extension
+
+**Goal:** Enable VS Code to work with Dev Containers.
+
+**Steps:**
 
 Install the **Dev Containers** extension from the VS Code marketplace.
 
+**Expected output:** The Dev Containers extension is installed and active.
+
 ### 3. Open in Dev Container
+
+**Goal:** Launch the development environment in a Docker container.
+
+**Steps:**
 
 1. When prompted, click **Reopen in Container**
    - Or use Command Palette (`Ctrl/Cmd+Shift+P`): `Dev Containers: Reopen in Container`
-2. VS Code will build the container (this may take a few minutes the first time)
+2. Wait for VS Code to build the container (this may take a few minutes the first time)
 3. Dependencies are installed automatically via `postCreateCommand`
 
-The default container uses **Python 3.12**.
+**Expected output:** Container is built with Python 3.12, dependencies installed, and VS Code is connected to the containerized environment.
 
 ### 4. Switch Python version (optional)
 
-To use Python 3.11 instead:
+**Goal:** Change the container to use Python 3.11 instead of Python 3.12.
+
+**Steps:**
 
 1. Open `.devcontainer/devcontainer.json`
 2. Change `"service": "py312"` to `"service": "py311"`
 3. Save the file
 4. Open Command Palette and run: `Dev Containers: Rebuild Container`
 
+**Expected output:** Container is rebuilt with Python 3.11.
+
 ### 5. Configure environment variables (optional)
 
-To use hosted model providers (GitHub Models, Microsoft Foundry):
+**Goal:** Set up credentials for hosted model providers (GitHub Models, Microsoft Foundry).
+
+**Steps:**
 
 1. Copy `.env.example` to `.env` in the repository root
 2. Edit `.env` with your credentials
 3. Rebuild the container if already running
+
+**Expected output:** Environment variables are available in the container for model provider configuration.
 
 ### 6. Verify prompt files are discoverable
 
@@ -66,10 +90,13 @@ To use hosted model providers (GitHub Models, Microsoft Foundry):
 
 1. Open Copilot Chat (Chat view).
 2. Type `/` in the input box.
-3. You should see prompts such as:
-   - `draft-spec`
-   - `create-plan`
-   - `split-to-issues`
+
+**Expected output:**
+
+You should see prompts such as:
+- `draft-spec`
+- `create-plan`
+- `split-to-issues`
 
 If you do not see them, confirm they exist under `.github/prompts/` and that the workspace is trusted.
 

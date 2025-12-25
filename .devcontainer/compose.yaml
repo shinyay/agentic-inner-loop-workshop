@@ -6,8 +6,10 @@ services:
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
-    # Optional: Create .env from .env.example to configure TRIAGE_PROVIDER, tokens, etc.
-    # If .env exists, environment variables will be loaded automatically
+    env_file:
+      - ../.env
+    # Optional: Create .env from .env.example in the repository root to configure
+    # TRIAGE_PROVIDER, tokens, etc. Docker Compose will load it if it exists.
 
   py312:
     build:
@@ -16,5 +18,7 @@ services:
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
-    # Optional: Create .env from .env.example to configure TRIAGE_PROVIDER, tokens, etc.
-    # If .env exists, environment variables will be loaded automatically
+    env_file:
+      - ../.env
+    # Optional: Create .env from .env.example in the repository root to configure
+    # TRIAGE_PROVIDER, tokens, etc. Docker Compose will load it if it exists.
