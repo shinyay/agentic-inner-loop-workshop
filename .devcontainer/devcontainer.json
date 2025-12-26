@@ -11,9 +11,13 @@
   "remoteUser": "vscode",
   // Linux host: align container user's UID/GID with the host user for clean file ownership.
   "updateRemoteUserUID": true,
+  // Make repo-local `.env` available to VS Code tasks (non-interactive shells) via $BASH_ENV.
+  "containerEnv": {
+    "BASH_ENV": "/workspace/.devcontainer/bash_env.sh"
+  },
   // Install dependencies after the container is created (runs as `vscode`).
   // Idempotent: if .venv exists, we reuse it.
-  "postCreateCommand": "bash -lc 'set -euo pipefail; cd /workspace; test -d .venv || python -m venv .venv; .venv/bin/python -m pip install --upgrade pip; .venv/bin/python -m pip install -e \".[dev]\"'",
+  "postCreateCommand": "bash -lc 'set -euo pipefail; cd /workspace; test -d .venv || python -m venv .venv; .venv/bin/python -m pip install --upgrade pip; .venv/bin/python -m pip install -e \".[dev]\"; bash /workspace/.devcontainer/postCreate.sh'",
   // VS Code extensions to install in the container
   "customizations": {
     "vscode": {
