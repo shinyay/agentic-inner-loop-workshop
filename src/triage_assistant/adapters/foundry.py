@@ -48,7 +48,7 @@ class FoundryModelInferenceAdapter:
     seed: int | None = None
 
     @staticmethod
-    def from_env() -> "FoundryModelInferenceAdapter":
+    def from_env() -> FoundryModelInferenceAdapter:
         endpoint = os.getenv("TRIAGE_FOUNDRY_ENDPOINT", "").strip()
         if not endpoint:
             raise KeyError("TRIAGE_FOUNDRY_ENDPOINT")
@@ -125,10 +125,25 @@ class FoundryModelInferenceAdapter:
                 resp = client.post(url, headers=headers, params=params, json=payload)
                 resp.raise_for_status()
                 data = resp.json()
-        except httpx.HTTPError as e:
-            raise ChatCompletionsError(f"Foundry HTTP error: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise ChatCompletionsError(
+                _format_foundry_http_status_error(
+                    status_code=e.response.status_code,
+                    reason=e.response.reason_phrase,
+                    endpoint=self.endpoint,
+                    model=self.model,
+                    api_version=self.api_version,
+                )
+            ) from e
+        except httpx.RequestError as e:
+            raise ChatCompletionsError(
+                _format_foundry_request_error(exc=e, endpoint=self.endpoint)
+            ) from e
         except json.JSONDecodeError as e:
-            raise ChatCompletionsError(f"Foundry returned non-JSON response: {e}") from e
+            raise ChatCompletionsError(
+                "Foundry returned a non-JSON response. "
+                "Verify TRIAGE_FOUNDRY_ENDPOINT, TRIAGE_FOUNDRY_MODEL, and TRIAGE_FOUNDRY_API_VERSION."
+            ) from e
 
         content = get_chat_completion_content(data)
         json_text = extract_json_object(content)
@@ -140,6 +155,49 @@ class FoundryModelInferenceAdapter:
     def _build_url(self) -> str:
         base = self.endpoint.rstrip("/")
         return f"{base}/chat/completions"
+
+
+def _format_foundry_http_status_error(
+    *,
+    status_code: int,
+    reason: str | None,
+    endpoint: str,
+    model: str,
+    api_version: str,
+) -> str:
+    parts: list[str] = ["Foundry request failed", f"HTTP {status_code}"]
+    if reason:
+        parts[-1] = f"HTTP {status_code} ({reason})"
+
+    hints: list[str] = []
+    if status_code in {401, 403}:
+        hints.append(
+            "Check TRIAGE_FOUNDRY_API_KEY (or AZURE_INFERENCE_CREDENTIAL). Ensure the key has access to the endpoint."
+        )
+    elif status_code == 404:
+        hints.append(
+            "Verify TRIAGE_FOUNDRY_ENDPOINT points to your Azure AI inference endpoint (typically ...services.ai.azure.com/models)."
+        )
+        hints.append(
+            f"Verify TRIAGE_FOUNDRY_MODEL is a valid deployment name (current: {model!r})."
+        )
+    elif status_code == 429:
+        hints.append("You may be rate limited. Retry with backoff or reduce request rate.")
+    elif 500 <= status_code <= 599:
+        hints.append("Provider error. Retry later; if persistent, check service health.")
+    else:
+        hints.append("Check endpoint, model deployment name, and API version.")
+
+    hints.append(f"Endpoint: {endpoint!r} | api-version: {api_version!r}")
+    return f"{': '.join(parts)}. {' '.join(hints)}".strip()
+
+
+def _format_foundry_request_error(*, exc: httpx.RequestError, endpoint: str) -> str:
+    return (
+        "Foundry request failed due to a network error. "
+        f"Verify TRIAGE_FOUNDRY_ENDPOINT ({endpoint!r}) is reachable from your environment "
+        "and check proxies/firewall settings."
+    )
 
 
 def _get_float_env(name: str, *, default: float) -> float:

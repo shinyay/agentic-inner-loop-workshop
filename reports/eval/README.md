@@ -16,3 +16,21 @@ Suggested naming:
 Template:
 
 - See `docs/templates/eval-report.template.md`
+
+## Turn findings into issues (close the loop)
+
+To keep the workshop loop moving, convert your evaluation report into actionable tasks:
+
+1. In your report, write 3–10 bullets under `## 4. Actions`.
+2. Convert those actions into GitHub Issues with a clear DoD + validation.
+
+Optional helper:
+
+- `scripts/eval_report_to_issues.py` can generate copy/pasteable issue draft skeletons from the bullets under `## 4. Actions`.
+
+Suggested place to save generated drafts:
+
+- `reports/eval/issues-from-eval.md`
+
+See also: `docs/workshop/07_feedback.md`.
+

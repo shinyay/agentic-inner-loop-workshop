@@ -45,7 +45,7 @@ class GitHubModelsAdapter:
     seed: int | None = None
 
     @staticmethod
-    def from_env() -> "GitHubModelsAdapter":
+    def from_env() -> GitHubModelsAdapter:
         token = (os.getenv("TRIAGE_GITHUB_TOKEN") or os.getenv("GITHUB_TOKEN") or "").strip()
         if not token:
             raise KeyError("TRIAGE_GITHUB_TOKEN")
@@ -115,25 +115,91 @@ class GitHubModelsAdapter:
                 resp = client.post(self._build_url(), headers=headers, json=payload)
                 resp.raise_for_status()
                 data = resp.json()
-        except httpx.HTTPError as e:
-            raise ChatCompletionsError(f"GitHub Models HTTP error: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise ChatCompletionsError(
+                _format_github_models_http_status_error(
+                    status_code=e.response.status_code,
+                    reason=e.response.reason_phrase,
+                    model=self.model,
+                    org=self.org,
+                )
+            ) from e
+        except httpx.RequestError as e:
+            raise ChatCompletionsError(
+                _format_github_models_request_error(
+                    exc=e,
+                    base_url=self.base_url,
+                )
+            ) from e
         except json.JSONDecodeError as e:
-            raise ChatCompletionsError(f"GitHub Models returned non-JSON response: {e}") from e
+            raise ChatCompletionsError(
+                "GitHub Models returned a non-JSON response. "
+                "If this persists, verify TRIAGE_GITHUB_BASE_URL and TRIAGE_GITHUB_MODEL."
+            ) from e
 
         content = get_chat_completion_content(data)
         json_text = extract_json_object(content)
         try:
             return TriageOutput.model_validate_json(json_text)
         except Exception as e:  # pragma: no cover
-            raise ChatCompletionsError(
-                f"GitHub Models output failed schema validation: {e}"
-            ) from e
+            raise ChatCompletionsError(f"GitHub Models output failed schema validation: {e}") from e
 
     def _build_url(self) -> str:
         base = self.base_url.rstrip("/")
         if self.org:
             return f"{base}/orgs/{self.org}/inference/chat/completions"
         return f"{base}/inference/chat/completions"
+
+
+def _format_github_models_http_status_error(
+    *,
+    status_code: int,
+    reason: str | None,
+    model: str,
+    org: str | None,
+) -> str:
+    # Keep this message actionable but secret-safe (no headers, no tokens, no response body).
+    parts: list[str] = ["GitHub Models request failed", f"HTTP {status_code}"]
+    if reason:
+        parts[-1] = f"HTTP {status_code} ({reason})"
+
+    hints: list[str] = []
+    if status_code in {401, 403}:
+        hints.append(
+            "Check TRIAGE_GITHUB_TOKEN (or GITHUB_TOKEN). Ensure the token has access to GitHub Models."
+        )
+        if org:
+            hints.append(
+                "If TRIAGE_GITHUB_ORG is set, ensure the token can access that organization."
+            )
+    elif status_code == 404:
+        hints.append(
+            "Verify TRIAGE_GITHUB_BASE_URL (default: https://models.github.ai) and the inference path."
+        )
+        hints.append(f"Verify TRIAGE_GITHUB_MODEL is valid (current: {model!r}).")
+        if org:
+            hints.append(
+                "If TRIAGE_GITHUB_ORG is set, verify the org slug is correct and the org supports inference."
+            )
+    elif status_code == 429:
+        hints.append("You may be rate limited. Retry with backoff or reduce request rate.")
+    elif 500 <= status_code <= 599:
+        hints.append("Provider error. Retry later; if persistent, check provider status.")
+    else:
+        hints.append("Check TRIAGE_GITHUB_MODEL and request configuration.")
+
+    hint_text = " ".join(hints)
+    return f"{': '.join(parts)}. {hint_text}".strip()
+
+
+def _format_github_models_request_error(*, exc: httpx.RequestError, base_url: str) -> str:
+    # Connection / DNS / timeout errors.
+    # Avoid embedding raw exception details that might include sensitive config.
+    return (
+        "GitHub Models request failed due to a network error. "
+        f"Verify TRIAGE_GITHUB_BASE_URL ({base_url!r}) is reachable from your environment "
+        "and check proxies/firewall settings."
+    )
 
 
 def _get_float_env(name: str, *, default: float) -> float:

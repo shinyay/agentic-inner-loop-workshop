@@ -11,6 +11,24 @@ The workshop aims to make you feel the difference between:
 - “the code works”
 - “the model is getting better”
 
+## Run/Evaluate checklist
+
+Use this as a quick, reproducible checklist before you move on.
+
+- [ ] Run deterministic gates:
+	- [ ] `pytest -q`
+	- [ ] (optional) `ruff check .`
+	- [ ] (optional) `ruff format --check .`
+- [ ] Run a dataset evaluation:
+	- [ ] Use the workshop dataset: `datasets/triage_dataset.csv`
+	- [ ] Run either:
+		- [ ] AI Toolkit bulk run + evaluation (preferred for iteration)
+		- [ ] local eval: `triage-assistant eval --adapter dummy --dataset datasets/triage_dataset.csv`
+- [ ] Record findings in this repo (don’t leave them only in the UI):
+	- [ ] Create a Markdown report under `reports/eval/`
+	- [ ] Start from `docs/templates/eval-report.template.md`
+	- [ ] Note what changed, what improved/regressed, and 3 concrete failure cases
+
 ## Lane A: Deterministic gates
 
 Run:
@@ -27,6 +45,14 @@ ruff format --check .
 ```
 
 ## Lane B: Probabilistic evaluation with AI Toolkit
+
+> AI Toolkit is in **preview**, so the exact UI and feature names can drift across VS Code / extension versions.
+>
+> If you can’t find a panel or button mentioned below, use the **Command Palette** (`Ctrl/Cmd+Shift+P`) and search for:
+> “AI Toolkit”, “Model Catalog”, “Bulk Run”, or “Evaluation”.
+>
+> The intent of this lane is stable:
+> 1) pick a model/provider, 2) run your prompt/agent on a dataset, 3) evaluate, 4) save a version you can compare.
 
 ### Step 1 — Open AI Toolkit
 
@@ -97,3 +123,4 @@ At minimum record:
 - At least one baseline evaluation in AI Toolkit (v1)
 
 Next: `07_feedback.md`
+

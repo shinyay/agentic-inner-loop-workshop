@@ -114,6 +114,23 @@ pytest -q
 By default, `triage-assistant` uses the deterministic `dummy` adapter so the workshop can run
 without any external credentials.
 
+### Hosted adapter smoke-test (optional)
+
+**Goal:** Confirm a hosted provider can produce schema-valid JSON end-to-end.
+
+**Steps:**
+
+1. Configure a provider (GitHub Models or Microsoft Foundry).
+  - Keep secrets in environment variables or a local `.env` file (start from `.env.example`).
+  - Do not commit `.env` or paste tokens/keys into docs/issues.
+2. Run a minimal smoke test:
+
+```bash
+triage-assistant triage --adapter auto --title "Crash on startup" --body "Steps to reproduce: ..." --pretty
+```
+
+**Expected output:** A JSON response printed to stdout that validates against the schema (no stack trace).
+
 If you want to call a hosted model from the CLI, configure a provider and then run with
 `--adapter ...` (or set `TRIAGE_PROVIDER`).
 

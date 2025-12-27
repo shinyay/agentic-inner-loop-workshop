@@ -9,6 +9,23 @@ Get your VS Code workspace into a state where you can run the full loop:
 - GitHub Issues (create issues, start work on issues)
 - Python environment (run tests and CLI)
 
+## Versions & prerequisites
+
+- **VS Code 1.103+**
+   - Some workshop features (for example, chat checkpoints) are newest in recent VS Code releases.
+   - If anything in this workshop looks “missing”, first confirm your VS Code version.
+- **Extensions** (installed and enabled in this workspace)
+   - GitHub Copilot + GitHub Copilot Chat
+   - AI Toolkit for VS Code
+   - GitHub Pull Requests and Issues
+   - Python + Pylance
+- **UI drift is normal**
+   - AI Toolkit is in **preview** and feature names/locations can change between releases.
+   - When the docs say “open X”, treat it as intent: use **Command Palette** (`Ctrl/Cmd+Shift+P`) and search for the feature name (for example: “AI Toolkit”, “Model Catalog”, “Evaluation”).
+- **Checkpoints are optional**
+   - If you can't find or enable chat checkpoints, continue anyway.
+   - Use `git` commits/branches as your “rewind” mechanism.
+
 ## Setup Options
 
 You can set up this workshop in two ways:
@@ -228,3 +245,4 @@ pytest -q
 Regardless of which setup option you chose, you're now ready to start the workshop!
 
 Next: `02_spec.md`
+
