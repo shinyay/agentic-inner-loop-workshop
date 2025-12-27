@@ -42,7 +42,7 @@ class OpenAICompatibleAdapter:
     json_mode: bool = True
 
     @staticmethod
-    def from_env() -> "OpenAICompatibleAdapter":
+    def from_env() -> OpenAICompatibleAdapter:
         base_url = os.environ["TRIAGE_OPENAI_BASE_URL"].strip()
         api_key = os.environ["TRIAGE_OPENAI_API_KEY"].strip()
         model = os.environ["TRIAGE_OPENAI_MODEL"].strip()
@@ -87,10 +87,23 @@ class OpenAICompatibleAdapter:
                 resp = client.post(url, headers=headers, json=payload)
                 resp.raise_for_status()
                 data = resp.json()
-        except httpx.HTTPError as e:
-            raise OpenAICompatibleError(f"HTTP error calling provider: {e}") from e
+        except httpx.HTTPStatusError as e:
+            raise OpenAICompatibleError(
+                _format_openai_compatible_http_status_error(
+                    status_code=e.response.status_code,
+                    reason=e.response.reason_phrase,
+                    base_url=self.base_url,
+                    model=self.model,
+                )
+            ) from e
+        except httpx.RequestError as e:
+            raise OpenAICompatibleError(
+                _format_openai_compatible_request_error(exc=e, base_url=self.base_url)
+            ) from e
         except json.JSONDecodeError as e:
-            raise OpenAICompatibleError(f"Provider returned non-JSON response: {e}") from e
+            raise OpenAICompatibleError(
+                "Provider returned a non-JSON response. Verify TRIAGE_OPENAI_BASE_URL and TRIAGE_OPENAI_MODEL."
+            ) from e
 
         content = get_chat_completion_content(data)
         json_text = extract_json_object(content)
@@ -98,3 +111,38 @@ class OpenAICompatibleAdapter:
             return TriageOutput.model_validate_json(json_text)
         except Exception as e:  # pragma: no cover
             raise OpenAICompatibleError(f"Model output failed schema validation: {e}") from e
+
+
+def _format_openai_compatible_http_status_error(
+    *,
+    status_code: int,
+    reason: str | None,
+    base_url: str,
+    model: str,
+) -> str:
+    parts: list[str] = ["OpenAI-compatible request failed", f"HTTP {status_code}"]
+    if reason:
+        parts[-1] = f"HTTP {status_code} ({reason})"
+
+    hints: list[str] = []
+    if status_code in {401, 403}:
+        hints.append("Check TRIAGE_OPENAI_API_KEY and ensure it has access to the model.")
+    elif status_code == 404:
+        hints.append("Verify TRIAGE_OPENAI_BASE_URL and that /v1/chat/completions is supported.")
+        hints.append(f"Verify TRIAGE_OPENAI_MODEL is valid (current: {model!r}).")
+    elif status_code == 429:
+        hints.append("You may be rate limited. Retry with backoff or reduce request rate.")
+    elif 500 <= status_code <= 599:
+        hints.append("Provider error. Retry later; if persistent, check provider status.")
+    else:
+        hints.append("Check base URL and model configuration.")
+
+    hints.append(f"Base URL: {base_url!r}")
+    return f"{': '.join(parts)}. {' '.join(hints)}".strip()
+
+
+def _format_openai_compatible_request_error(*, exc: httpx.RequestError, base_url: str) -> str:
+    return (
+        "OpenAI-compatible request failed due to a network error. "
+        f"Verify TRIAGE_OPENAI_BASE_URL ({base_url!r}) is reachable and check proxies/firewall settings."
+    )

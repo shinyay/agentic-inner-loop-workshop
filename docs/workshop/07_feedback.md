@@ -23,6 +23,17 @@ Pick 1–3 actions that are:
 
 Use the issue templates.
 
+To keep the loop repeatable, start from the **Actions** section of your evaluation report.
+If you used `docs/templates/eval-report.template.md`, your report already has:
+
+- `## 4. Actions`
+
+Under that header, write each action as a bullet point. Keep actions small (0.5–2 hours).
+Example:
+
+- Fix label normalization edge-cases (dedupe case-insensitively)
+- Add a regression test for stdout JSON-only on `triage`
+
 For each new issue:
 - include a DoD
 - include how to validate (AI Toolkit version compare OR unit tests)
@@ -30,6 +41,28 @@ For each new issue:
 If failures are due to unclear requirements, update:
 - `docs/spec.md`
 - `docs/plan.md`
+
+#### Optional: generate copy/pasteable issue drafts from the eval report
+
+If you want a faster path from “Actions” to “Issues”, use the helper script:
+
+- `scripts/eval_report_to_issues.py`
+
+It extracts bullet points under `## 4. Actions` and generates Markdown issue skeletons you can copy/paste into GitHub.
+
+Steps:
+
+1. Ensure your evaluation report has a `## 4. Actions` section with bullet points.
+2. Run the script and write drafts to a Markdown file you can keep in the repo.
+
+Suggested output locations (pick one convention and stick to it):
+
+- `reports/eval/issues-from-eval.md` (keeps “findings → tasks” together)
+- `docs/issues-from-eval.md` (keeps drafts near other workshop docs)
+
+Expected output:
+
+- A Markdown file containing “Draft 1…N” sections with Problem/DoD/Validation headings, ready to copy/paste into GitHub Issues.
 
 ### Step 3 — Implement one feedback issue
 
@@ -53,3 +86,4 @@ Append or create a new evaluation note under `reports/eval/`.
 - Written record of what improved and why
 
 Next: `08_retro.md`
+
