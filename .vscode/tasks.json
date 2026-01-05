@@ -4,13 +4,13 @@
     {
       "label": "Install (editable + dev)",
       "type": "shell",
-      "command": "python3 -m pip install -e \".[dev]\"",
+      "command": "test -d .venv || uv venv .venv; uv pip install -e \".[dev]\"",
       "problemMatcher": []
     },
     {
       "label": "Test (pytest)",
       "type": "shell",
-      "command": "python3 -m pytest -q",
+      "command": "uv run pytest -q",
       "problemMatcher": [],
       "group": {
         "kind": "test",
@@ -20,25 +20,25 @@
     {
       "label": "Lint (ruff)",
       "type": "shell",
-      "command": "python3 -m ruff check .",
+      "command": "uv run ruff check .",
       "problemMatcher": []
     },
     {
       "label": "Format check (ruff)",
       "type": "shell",
-      "command": "python3 -m ruff format --check .",
+      "command": "uv run ruff format --check .",
       "problemMatcher": []
     },
     {
       "label": "Run CLI (dummy sample)",
       "type": "shell",
-      "command": "triage-assistant triage --adapter dummy --title \"Crash when saving\" --body \"Steps to reproduce:\\n1. Open\\n2. Save\\nVersion: 1.0\" --pretty",
+      "command": "uv run triage-assistant triage --adapter dummy --title \"Crash when saving\" --body \"Steps to reproduce:\\n1. Open\\n2. Save\\nVersion: 1.0\" --pretty",
       "problemMatcher": []
     },
     {
       "label": "Local eval (dummy)",
       "type": "shell",
-      "command": "triage-assistant eval --adapter dummy --dataset datasets/triage_dataset.csv --report reports/eval/local_eval.md",
+      "command": "uv run triage-assistant eval --adapter dummy --dataset datasets/triage_dataset.csv --report reports/eval/local_eval.md",
       "problemMatcher": []
     }
   ]
