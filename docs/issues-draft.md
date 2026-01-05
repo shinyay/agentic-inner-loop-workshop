@@ -1,80 +1,23 @@
-# Issue drafts
+# Issue drafts (AI Toolkit scenario)
 
 Goal:
 
-- Convert `docs/plan.md` into copy/paste-ready GitHub Issue drafts.
+- Convert `docs/plan.md` into **copy/paste-ready GitHub Issue drafts** that match the hands-on scenario.
 
-Steps:
+How to use:
 
-1. Copy one issue draft into GitHub Issues.
-2. Create a branch from the issue.
-3. Implement → validate → open a PR.
+1. Copy one draft below into a new GitHub Issue.
+2. Use VS Code GitHub panel → “Start working on issue” to create a branch.
+3. Implement (if needed) → run validation → open a PR that closes the issue.
 
-Expected outputs:
+Notes:
 
-- Each issue has a clear DoD and validation commands.
-- Deterministic gates stay green: `python3 -m pytest -q`.
-
----
-
-## Issue 1: Workshop docs prerequisites + UI drift guardrails
-
-Labels (suggested):
-
-- `docs`
-- `p2`
-
-Problem statement:
-
-- Participants get blocked by version/UI differences (VS Code checkpoints, AI Toolkit preview UI).
-
-Definition of Done:
-
-- [ ] Add a short “Versions & prerequisites” note to the relevant workshop doc(s) under `docs/workshop/`.
-- [ ] Mention VS Code checkpoints requirement (VS Code 1.103+).
-- [ ] Mention AI Toolkit is preview and include at least one fallback navigation path (Command Palette / alternate menu).
-- [ ] Keep wording intent-based (avoid brittle click-by-click instructions).
-
-Validation command(s):
-
-- `python3 -m pytest -q`
-
-Notes / dependencies:
-
-- None.
+- Validation commands in this repo should prefer `uv run ...` (the system Python may not have `pip/ensurepip`).
+- Never paste tokens/keys into issues or commit them.
 
 ---
 
-## Issue 2: Add `triage-assistant doctor` for configuration diagnosis
-
-Labels (suggested):
-
-- `feature`
-- `p2`
-- `enhancement`
-
-Problem statement:
-
-- Hosted adapters fail when env vars are missing; diagnosing “what is auto doing?” is slow.
-
-Definition of Done:
-
-- [ ] Add a `doctor` command that prints which adapter `--adapter auto` would choose.
-- [ ] Show missing env vars for GitHub Models / Foundry / OpenAI-compatible (best-effort).
-- [ ] Do not break `triage` JSON-only stdout contract.
-- [ ] Add unit tests for the doctor output.
-
-Validation command(s):
-
-- `python3 -m pytest -q`
-
-Notes / dependencies:
-
-- None.
-
----
-
-## Issue 3: Improve hosted adapter error messages (actionable, safe)
+## Issue 1: Deterministic improvement (code + tests)
 
 Labels (suggested):
 
@@ -83,71 +26,64 @@ Labels (suggested):
 
 Problem statement:
 
-- HTTP failures are not always actionable; users need “what to check next” without secrets leakage.
+- We need at least one improvement that is enforced **deterministically** (tests), not only via prompt tuning.
+
+Proposed change (pick one scope; smallest wins):
+
+- A) Security-like reports get the `security` label and default to `p0`.
+- B) Crashes with reproduction steps present should not be labeled `needs-repro`.
+- C) Normalize labels more strictly (trim, lowercase, de-dup) and add tests.
 
 Definition of Done:
 
-- [ ] Improve error messages for GitHub Models and Foundry adapters to include status code + safe hint.
-- [ ] Ensure tokens/keys are never printed.
-- [ ] Add at least one mocked failure test.
+- [ ] Implement the chosen improvement in code.
+- [ ] Add/adjust unit tests that lock the new behavior.
+- [ ] Keep `triage` stdout JSON-only (no extra logging).
 
 Validation command(s):
 
-- `python3 -m pytest -q`
+- `uv run pytest -q`
+
+PR instructions:
+
+- Commit message includes `Fixes #NN`.
 
 Notes / dependencies:
 
-- Independent of Issue 2.
+- None.
 
 ---
 
-## Issue 4: Strengthen CLI contract tests (stdout JSON-only)
-
-Labels (suggested):
-
-- `bug`
-- `p1`
-
-Problem statement:
-
-- The most important contract is “`triage` prints JSON-only on stdout”. Regressions break pipelines.
-
-Definition of Done:
-
-- [ ] Add/extend tests that assert `triage` stdout is parseable JSON.
-- [ ] Add/extend tests that assert errors go to stderr (not stdout).
-
-Validation command(s):
-
-- `python3 -m pytest -q`
-
-Notes / dependencies:
-
-- This issue covers the deterministic baseline requirement: tests + schema + CLI stability.
-
----
-
-## Issue 5: Improve `triage-assistant eval` Markdown report for fast iteration
+## Issue 2: AI Toolkit v1 baseline (prompt/agent) + bulk run + evaluation
 
 Labels (suggested):
 
 - `feature`
 - `p2`
-- `enhancement`
 
 Problem statement:
 
-- The local eval report is useful, but needs better “what failed” visibility for iteration.
+- We need a v1 baseline to discover failure modes from real model outputs.
 
 Definition of Done:
 
-- [ ] Improve report readability (expected vs predicted, rationale, failure examples).
-- [ ] Add a small “top failure patterns” section (basic grouping is OK).
-- [ ] Add a unit test that asserts key headings exist.
+- [ ] Create a minimal Agent Builder prompt/agent that:
+
+	- returns **JSON only** (no markdown code fences)
+	- respects the allowed enums for `type` and `priority`
+	- outputs the schema fields: `type`, `priority`, `labels`, `rationale`
+
+- [ ] Bulk run with `datasets/triage_dataset.csv` mapping:
+
+	- `title` → `title`
+	- `body` → `body`
+
+- [ ] Run at least one evaluation (e.g., coherence and/or relevance).
+- [ ] Save version as `v1-baseline`.
 
 Validation command(s):
 
-- `python3 -m pytest -q`
+- (manual) confirm the dataset grid shows outputs for all rows and an evaluation result exists.
 
 Notes / dependencies:
 
@@ -155,7 +91,7 @@ Notes / dependencies:
 
 ---
 
-## Issue 6: Document the evaluation loop (AI Toolkit) + where to record results
+## Issue 3: Write and commit evaluation report v1
 
 Labels (suggested):
 
@@ -164,26 +100,32 @@ Labels (suggested):
 
 Problem statement:
 
-- Participants run evals but don’t consistently record findings in a reusable way.
+- Evaluation results must become “repo memory” so we can turn them into issues.
 
 Definition of Done:
 
-- [ ] Add a short “Run/Evaluate” checklist under `docs/workshop/`.
-- [ ] Reference dataset: `datasets/triage_dataset.csv`.
-- [ ] Specify where to record results: `reports/eval/`.
+- [ ] Create `reports/eval/<YYYYMMDD-HHMM>_v1.md` using `docs/templates/eval-report.template.md`.
+- [ ] Include:
+
+	- provider/model used
+	- v1 version name (`v1-baseline`)
+	- evaluation scores (from AI Toolkit)
+	- 3–5 representative failures (input → output → why wrong)
+	- 2–4 follow-up items (issue-sized)
+
+- [ ] Commit the report.
 
 Validation command(s):
 
-- `python3 -m pytest -q`
+- `uv run pytest -q`
 
 Notes / dependencies:
 
-- Issue 1 is recommended first (keeps docs consistent), but not required.
-- This issue covers the probabilistic evaluation requirement: AI Toolkit dataset run + versioning notes.
+- Depends on Issue 2.
 
 ---
 
-## Issue 7: Close the loop (eval findings → new issues)
+## Issue 4: Feedback-to-issues (create improvement issues from v1 failures)
 
 Labels (suggested):
 
@@ -192,26 +134,59 @@ Labels (suggested):
 
 Problem statement:
 
-- Without turning failures into issues, the loop stalls.
+- Without converting failures into issues, the loop stalls.
 
 Definition of Done:
 
-- [ ] Document how to create issue drafts from evaluation findings.
-- [ ] (Optional) Document how to use `scripts/eval_report_to_issues.py` if appropriate.
-- [ ] Ensure the flow produces copy/pasteable issue drafts.
+- [ ] Create 2–4 GitHub Issues derived from `..._v1.md`.
+- [ ] Each issue includes:
+
+	- a crisp DoD
+	- validation steps (tests and/or “re-run v2 evaluation”)
+	- a link/reference to the v1 report section that motivated it
+
+- [ ] At least one issue is explicitly “evaluation-driven” (i.e., it cites a failure case).
 
 Validation command(s):
 
-- `python3 -m pytest -q`
+- N/A (process step).
 
 Notes / dependencies:
 
-- Depends on Issue 6.
-- This issue covers the feedback loop closure requirement.
+- Depends on Issue 3.
 
 ---
 
-## Issue 8: Hosted adapter smoke-test note (optional but practical)
+## Issue 5: AI Toolkit v2 improved + compare vs v1
+
+Labels (suggested):
+
+- `feature`
+- `p2`
+
+Problem statement:
+
+- We need to show measurable improvement (v2 vs v1), not just changes.
+
+Definition of Done:
+
+- [ ] Apply a targeted improvement (prompt-only, code-assisted, or both).
+- [ ] Save version as `v2-improved`.
+- [ ] Re-run bulk run + evaluation.
+- [ ] Use compare view to compare `v2-improved` vs `v1-baseline`.
+- [ ] Capture at least one “fixed failure case” from v1.
+
+Validation command(s):
+
+- (manual) compare view shows metric deltas and you can point to at least one fixed case.
+
+Notes / dependencies:
+
+- Depends on Issue 4 (so you know what to improve).
+
+---
+
+## Issue 6: Write and commit evaluation report v2 (v1 → v2 deltas)
 
 Labels (suggested):
 
@@ -220,20 +195,27 @@ Labels (suggested):
 
 Problem statement:
 
-- Participants want to confirm hosted adapters work end-to-end, but setup varies.
+- The workshop requires a written record of the improvement (deltas + what changed).
 
 Definition of Done:
 
-- [ ] Add a short doc note pointing to `docs/providers.md` and showing a minimal smoke-test command.
-- [ ] Include a reminder that secrets live in env vars / `.env` and should not be pasted.
+- [ ] Create `reports/eval/<YYYYMMDD-HHMM>_v2.md` using the same template.
+- [ ] Include:
+
+	- v1 vs v2 metric deltas
+	- what changed (prompt and/or code)
+	- at least one fixed failure case
+	- remaining gaps and next issues
+
+- [ ] Commit the report.
 
 Validation command(s):
 
-- `python3 -m pytest -q`
+- `uv run pytest -q`
 
 Notes / dependencies:
 
-- None.
+- Depends on Issue 5.
 
 
 
