@@ -13,6 +13,16 @@ def test_labels_normalization_dedup_and_trim() -> None:
     assert out.labels == ["bug", "needs-repro"]
 
 
+def test_labels_normalization_lowercases_first_occurrence() -> None:
+    out = TriageOutput(
+        type=IssueType.bug,
+        priority=Priority.p1,
+        labels=["Needs-Repro", "needs-repro", "P1", "bug"],
+        rationale="Because.",
+    )
+    assert out.labels == ["needs-repro", "p1", "bug"]
+
+
 def test_to_json_roundtrip() -> None:
     out = TriageOutput(
         type=IssueType.feature,

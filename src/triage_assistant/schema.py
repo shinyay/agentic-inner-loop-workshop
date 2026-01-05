@@ -58,26 +58,25 @@ class TriageOutput(BaseModel):
         """Normalize labels for stability.
 
         - trims whitespace
+        - lowercases
         - removes empties
-        - de-duplicates case-insensitively while preserving order
+        - de-duplicates while preserving order
         """
-        cleaned: list[str] = []
+        deduped: list[str] = []
+        seen: set[str] = set()
         for label in labels:
             if not isinstance(label, str):
                 continue
-            normalized = label.strip()
+
+            normalized = label.strip().lower()
             if not normalized:
                 continue
-            cleaned.append(normalized)
 
-        deduped: list[str] = []
-        seen: set[str] = set()
-        for label in cleaned:
-            key = label.casefold()
-            if key in seen:
+            if normalized in seen:
                 continue
-            seen.add(key)
-            deduped.append(label)
+
+            seen.add(normalized)
+            deduped.append(normalized)
 
         return deduped
 
